@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111827"><link rel="manifest" href="manifest.webmanifest">
+<title>MecaFlow</title>
+<style>
+body{margin:0;font:15px system-ui;background:#f4f6f8;color:#172033}header{background:#111827;color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}.logo{font-weight:900;font-size:21px}.logo b{color:#60a5fa}.wrap{display:flex;min-height:calc(100vh - 60px)}nav{width:220px;background:#fff;border-right:1px solid #ddd;padding:12px}.nav{padding:12px;border-radius:10px;margin:4px 0;cursor:pointer;font-weight:700}.nav.active,.nav:hover{background:#eaf2ff;color:#1757c2}main{padding:22px;max-width:1500px;width:100%;margin:auto}.view{display:none}.view.active{display:block}.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.card,.panel{background:#fff;border:1px solid #e2e6eb;border-radius:14px;padding:16px}.big{font-size:28px;font-weight:900}.muted{color:#687385}.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:16px}table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #edf0f3;text-align:left;font-size:13px}th{font-size:11px;color:#6b7280;text-transform:uppercase}.pill{display:inline-block;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}.urgent{background:#fee2e2;color:#991b1b}.p1{background:#ffedd5;color:#9a3412}.p2{background:#fef3c7;color:#854d0e}.p3{background:#dcfce7;color:#166534}.blue{background:#dbeafe;color:#1e40af}.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}input,select,textarea{width:100%;padding:10px;border:1px solid #d4dae3;border-radius:9px;box-sizing:border-box}textarea{min-height:100px}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}button{border:0;border-radius:9px;padding:10px 14px;font-weight:800;cursor:pointer}.primary{background:#2563eb;color:white}.light{background:white;border:1px solid #d5dbe4}.danger{background:#fee2e2;color:#991b1b}.modal{display:none;position:fixed;inset:0;background:#0007;align-items:center;justify-content:center}.modal.show{display:flex}.modalbox{background:#fff;padding:20px;border-radius:16px;width:min(800px,94vw);max-height:90vh;overflow:auto}@media(max-width:900px){nav{width:62px}.nav span{display:none}.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}@media(max-width:600px){nav{display:none}.cards{grid-template-columns:1fr}.form{grid-template-columns:1fr}main{padding:12px}}
+</style></head>
+<body><header><div class="logo">Meca<b>Flow</b></div><button class="primary" onclick="openNew()">+ Nouveau véhicule</button></header>
+<div class="wrap"><nav>
+<div class="nav active" data-v="home">📊 <span>Atelier</span></div><div class="nav" data-v="vehicles">🚗 <span>Véhicules</span></div><div class="nav" data-v="mechanics">👨‍🔧 <span>Mécaniciens</span></div><div class="nav" data-v="diag">🧠 <span>Diagnostic</span></div><div class="nav" data-v="parts">📦 <span>Pièces</span></div><div class="nav" data-v="history">📚 <span>Historique</span></div>
+</nav><main>
+<section id="home" class="view active"><h1>Atelier</h1><p class="muted">Organisation en temps réel</p><div class="cards" id="stats"></div><div class="grid"><div class="panel"><h2>Priorités</h2><table><thead><tr><th>Priorité</th><th>Véhicule</th><th>Diagnostic</th><th>Mécano</th><th>Statut</th></tr></thead><tbody id="homeRows"></tbody></table></div><div class="panel"><h2>Activité</h2><div id="activity" class="muted">Aucune activité.</div></div></div></section>
+<section id="vehicles" class="view"><h1>Véhicules</h1><p class="muted">Dossiers atelier</p><div class="panel"><div class="actions" style="justify-content:space-between"><input id="search" placeholder="Rechercher..." oninput="render()"><button class="primary" onclick="openNew()">+ Ajouter</button></div><table><thead><tr><th>Priorité</th><th>Véhicule</th><th>Client</th><th>Mécano</th><th>Temps</th><th>Statut</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></section>
+<section id="mechanics" class="view"><h1>Mécaniciens</h1><p class="muted">Charge de travail</p><div class="panel"><table><thead><tr><th>Mécanicien</th><th>Actifs</th><th>Prévu</th><th>Réel</th></tr></thead><tbody id="mechRows"></tbody></table></div></section>
+<section id="diag" class="view"><h1>Assistant diagnostic</h1><p class="muted">Structure les contrôles à effectuer à partir des informations saisies.</p><div class="panel"><div class="form"><input id="dcar" placeholder="Véhicule"><input id="dcode" placeholder="Code défaut"><textarea id="dsym" class="full" placeholder="Symptômes et mesures déjà effectuées"></textarea></div><div class="actions"><button class="primary" onclick="makePlan()">Créer le plan de contrôle</button></div></div><div id="plan" style="margin-top:15px"></div></section>
+<section id="parts" class="view"><h1>Pièces</h1><div class="panel"><table><thead><tr><th>Véhicule</th><th>Pièce</th><th>Référence</th><th>Statut</th></tr></thead><tbody id="partRows"></tbody></table></div></section>
+<section id="history" class="view"><h1>Historique</h1><div class="panel"><table><thead><tr><th>Date</th><th>Véhicule</th><th>Action</th><th>Détail</th></tr></thead><tbody id="histRows"></tbody></table></div></section>
+</main></div>
+
+<div id="newModal" class="modal"><div class="modalbox"><h2>Nouveau véhicule</h2><div class="form">
+<input id="mModel" placeholder="Marque / modèle"><input id="mImmat" placeholder="Immatriculation"><input id="mClient" placeholder="Client">
+<select id="mMech"><option>Karim</option><option>Mehdi</option><option>Alex</option><option>Disponible</option></select>
+<select id="mPrio"><option>URGENT</option><option>1</option><option>2</option><option>3</option></select><input id="mTime" type="number" step=".25" value="1" placeholder="Heures prévues">
+<textarea id="mDiag" class="full" placeholder="Diagnostic / symptômes"></textarea><textarea id="mWork" class="full" placeholder="Travaux à effectuer"></textarea></div>
+<div class="actions"><button class="light" onclick="closeNew()">Annuler</button><button class="primary" onclick="addVehicle()">Créer</button></div></div></div>
+<script>
+const K="mecaflow_cloud_ready_v1";let db=JSON.parse(localStorage.getItem(K)||"null")||{vehicles:[],parts:[],history:[]};
+const save=()=>localStorage.setItem(K,JSON.stringify(db)); const e=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+function bp(p){return `<span class="pill ${p==="URGENT"?"urgent":p==="1"?"p1":p==="2"?"p2":"p3"}">${e(p)}</span>`}
+function bs(s){return `<span class="pill blue">${e(s)}</span>`}
+function render(){let v=db.vehicles;document.getElementById("stats").innerHTML=[["Véhicules",v.length],["Urgents",v.filter(x=>x.p==="URGENT").length],["En cours",v.filter(x=>x.s!=="Terminé").length],["Heures prévues",v.reduce((a,x)=>a+x.t,0).toFixed(1)],["Heures réelles",v.reduce((a,x)=>a+x.r,0).toFixed(1)]].map(x=>`<div class="card"><div class="big">${x[1]}</div><div class="muted">${x[0]}</div></div>`).join("");
+let sorted=[...v].sort((a,b)=>({URGENT:0,1:1,2:2,3:3}[a.p]-({URGENT:0,1:1,2:2,3:3}[b.p]));document.getElementById("homeRows").innerHTML=sorted.map(x=>`<tr><td>${bp(x.p)}</td><td><b>${e(x.m)}</b><br><small>${e(x.i)}</small></td><td>${e(x.d)}</td><td>${e(x.me)}</td><td>${bs(x.s)}</td></tr>`).join("")||`<tr><td colspan=5>Aucun véhicule.</td></tr>`;
+let q=(document.getElementById("search")?.value||"").toLowerCase();v=v.filter(x=>(x.m+" "+x.i+" "+x.c+" "+x.d).toLowerCase().includes(q));document.getElementById("rows").innerHTML=v.map(x=>`<tr><td>${bp(x.p)}</td><td><b>${e(x.m)}</b><br><small>${e(x.i)}</small></td><td>${e(x.c)}</td><td>${e(x.me)}</td><td>${x.r}/${x.t} h</td><td>${bs(x.s)}</td><td><button class="light" onclick="finish(${x.id})">Terminer</button></td></tr>`).join("");
+let names=["Karim","Mehdi","Alex"];document.getElementById("mechRows").innerHTML=names.map(n=>{let a=db.vehicles.filter(x=>x.me===n);return `<tr><td><b>${n}</b></td><td>${a.filter(x=>x.s!=="Terminé").length}</td><td>${a.reduce((z,x)=>z+x.t,0).toFixed(1)} h</td><td>${a.reduce((z,x)=>z+x.r,0).toFixed(1)} h</td></tr>`}).join("");
+document.getElementById("partRows").innerHTML=db.parts.map(x=>`<tr><td>${e(x.v)}</td><td>${e(x.p)}</td><td>${e(x.ref)}</td><td>${bs(x.s)}</td></tr>`).join("")||`<tr><td colspan=4>Aucune pièce.</td></tr>`;
+document.getElementById("histRows").innerHTML=db.history.slice().reverse().map(x=>`<tr><td>${e(x.date)}</td><td>${e(x.v)}</td><td>${e(x.a)}</td><td>${e(x.d)}</td></tr>`).join("")||`<tr><td colspan=4>Aucun historique.</td></tr>`;
+}
+function openNew(){document.getElementById("newModal").classList.add("show")}function closeNew(){document.getElementById("newModal").classList.remove("show")}
+function addVehicle(){let x={id:Date.now(),m:mModel.value.trim(),i:mImmat.value.trim(),c:mClient.value.trim(),me:mMech.value,p:mPrio.value,t:+mTime.value||0,r:0,d:mDiag.value.trim(),w:mWork.value.trim(),s:"À diagnostiquer"};if(!x.m||!x.i)return alert("Indique le véhicule et l'immatriculation.");db.vehicles.push(x);db.history.push({date:new Date().toLocaleString("fr-FR"),v:x.m,a:"Dossier créé",d:x.i+" — priorité "+x.p});save();closeNew();render();alert("Dossier créé.");}
+function finish(id){let x=db.vehicles.find(x=>x.id===id);if(x){x.s="Terminé";x.r=x.t;db.history.push({date:new Date().toLocaleString("fr-FR"),v:x.m,a:"Travaux terminés",d:"Dossier clôturé"});save();render()}}
+function makePlan(){let car=dcar.value||"Véhicule",code=dcode.value||"non renseigné";let arr=["Confirmer le symptôme","Lire défauts et données figées","Contrôler alimentation / masses / connectique","Comparer valeurs réelles et consignes","Faire les tests actifs ciblés","Confirmer la cause avant remplacement","Effacer défauts et contrôler après réparation"];document.getElementById("plan").innerHTML=`<div class="panel"><h2>Plan — ${e(car)}</h2><p><b>Code :</b> ${e(code)}</p><ol>${arr.map(x=>`<li style="margin:9px">${x}</li>`).join("")}</ol><p class="muted">Les valeurs et procédures constructeur restent prioritaires.</p></div>`}
+document.querySelectorAll(".nav").forEach(n=>n.onclick=()=>{document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));n.classList.add("active");document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(n.dataset.v).classList.add("active");render()});render();
+</script>
+<script>
+window.MecaFlowAPI = {
+  async listVehicles(){ const r=await fetch('/api/vehicles'); if(!r.ok) throw new Error('API'); return r.json(); },
+  async createVehicle(v){ const r=await fetch('/api/vehicles',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)}); if(!r.ok) throw new Error(await r.text()); return r.json(); },
+  async health(){ return fetch('/api/health').then(r=>r.json()); }
+};
+</script>
+
+<script>
+(function(){
+  const KEY='mecaflow_vehicles_v1';
+  const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}};
+  const save=x=>localStorage.setItem(KEY,JSON.stringify(x));
+  window.MecaFlowStandalone={
+    listVehicles:()=>load(),
+    createVehicle:v=>{const a=load();v.id=Date.now();v.status=v.status||'À diagnostiquer';a.unshift(v);save(a);return v},
+    updateVehicle:(id,status)=>{const a=load();const x=a.find(v=>String(v.id)===String(id));if(x){x.status=status;save(a)}return x},
+    clear:()=>localStorage.removeItem(KEY)
+  };
+})();
+</script>
+</body></html>
